@@ -49,21 +49,21 @@
             this.button1.Location = new System.Drawing.Point(176, 600);
             this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(309, 26);
+            this.button1.Size = new System.Drawing.Size(302, 61);
             this.button1.TabIndex = 0;
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.b1click);
             // 
             // timer1
             // 
-            this.timer1.Interval = 10;
+            this.timer1.Interval = 30;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form1
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(667, 625);
+            this.ClientSize = new System.Drawing.Size(660, 660);
             this.ControlBox = false;
             this.Controls.Add(this.button1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
