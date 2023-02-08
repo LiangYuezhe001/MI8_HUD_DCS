@@ -19,22 +19,23 @@ namespace WindowsFormsApp1
         static Socket server_r;
         //接收socket
         static float currentSimTime, TAS;
-        static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, dVerticalVelocity, VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, CB, SB, CTB, STB;
-        static int flag = 0, flag_hide = 0, flag_blind = 0;
+        static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, dVerticalVelocity,
+            VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS;
+        static int flag = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0;
         static int pix_bvx, pix_bvy;
         static int mywidth, myheight;
         static int pic_size = 500;
-        
+
         KeyboardHook kh;
-        EndPoint point2;
+
         static string dis_yaw;
-        static int gradations_yaw;
-        static Bitmap bmp = new Bitmap(500, 500);
-        //static Bitmap bmp1 = new Bitmap(300, 300);
+        //static int gradations_yaw;
+        static Bitmap bmp = new Bitmap(pic_size, pic_size);
+
         Graphics g = Graphics.FromImage(bmp);
-        // Graphics g1 = Graphics.FromImage(bmp1);
-        Pen p = new Pen(Color.GreenYellow);
-        Pen p2 = new Pen(Color.GreenYellow);
+
+        Pen p = new Pen(Color.LimeGreen);
+        Pen p2 = new Pen(Color.LimeGreen);
 
         public class Win32Api
 
@@ -299,23 +300,22 @@ namespace WindowsFormsApp1
 
         private void recive()
         {
-            int length=0,flag=1;
+            int length = 0;
             //接受
             byte[] buffer = new byte[1024];
             EndPoint point2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
             try
             {
-                 length = server_r.ReceiveFrom(buffer, ref point2);//接收数据报  
-                
+                length = server_r.ReceiveFrom(buffer, ref point2);//接收数据报  
+
             }
-            catch (SocketException )
+            catch (SocketException)
             {
 
-                g.DrawString("chaoshi", new Font("Lucida Console", 20), Brushes.LimeGreen, new PointF(200, 25));
-                timer1.Stop();
-                flag = 0;
+               
+                flag_timeout = 1;
             }
-            if (flag == 1)
+            if (flag_timeout == 0)
             {
                 timer1.Start();
                 string message = Encoding.UTF8.GetString(buffer, 0, length);
@@ -407,41 +407,23 @@ namespace WindowsFormsApp1
 
                 recive();
                 if (flag == 0) { break; }
+                if (flag_timeout == 1) 
+                {
+                    g.DrawString("TIMEOUT", new Font("Lucida Console", 20), Brushes.LimeGreen, new PointF(190, 200));
+                    this.CreateGraphics().DrawImage(bmp, (int)((mywidth - pic_size) / 2), (int)((myheight - pic_size) / 2));
+                    timer1.Stop();
+                    flag = 0;
+                    break; 
+                }
                 Application.DoEvents();
+
             }
 
         }
 
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-            //if (e.KeyCode == Keys.A) //按下空格键
-            //{
-            //    if (flag == 0)
-            //    {
-            //        flag = 1;
-            //        startup();
-            //        //recive_loop();
-            //        timer1.Start();
-            //    }
-            //    else
-            //    {
-            //        flag = 0;
-            //        timer1.Stop();
-            //        g.Clear(Color.White);
-            //        button1.BackColor = Color.LimeGreen;
-            //    }
-            //}
-            //if (e.KeyCode == Keys.Q)
-            //{
-            //    Application.ExitThread();
-            //}
 
-        }
 
-        private void button1_KeyDown(object sender, KeyEventArgs e)
-        {
 
-        }
 
         private void draw_magyaw_indicator()
         {
@@ -454,53 +436,31 @@ namespace WindowsFormsApp1
 
             gap = (400 - 100) / num;
             gradations_yaw = -(int)(((MAGyaw / Math.PI * 90) % 10) * 10);
-            
+
             for (int i = 100 + gap; i <= 500; i += gap)
             {
-                g.DrawLine(p, new Point(150 + gradations_yaw, 10), new Point(150 + gradations_yaw, 30));
-            }
-            if (gradations_yaw >= -75)
-            {
-                g.DrawLine(p, new Point(175 + gradations_yaw, 10), new Point(175 + gradations_yaw, 20));
-            }
-            if (gradations_yaw >= -25)
-            {
-                g.DrawLine(p, new Point(125 + gradations_yaw, 10), new Point(125 + gradations_yaw, 20));
+
+                if (j < 5)
+                {
+                    j++;
+                    b = 20;
+                }
+                else
+                {
+                    j = 1;
+                    b = c;
+                }
+                pos = i + gradations_yaw;
+
+
+
+                if (pos >= 100 && pos <= 400)
+                {
+                    g.DrawLine(p, new Point(pos, a), new Point(pos, b));
+                }
             }
 
-            if (gradations_yaw >= -25)
-            {
-                g.DrawLine(p, new Point(100 + gradations_yaw, 10), new Point(100 + gradations_yaw, 20));
-            }
 
-            if (gradations_yaw <= -25)
-            {
-                g.DrawLine(p, new Point(425 + gradations_yaw, 10), new Point(425 + gradations_yaw, 20));
-            }
-            if (gradations_yaw <= -50)
-            {
-                g.DrawLine(p, new Point(450 + gradations_yaw, 10), new Point(450 + gradations_yaw, 30));
-            }
-
-            if (gradations_yaw <= -75)
-            {
-                g.DrawLine(p, new Point(475 + gradations_yaw, 10), new Point(475 + gradations_yaw, 20));
-            }
-
-            if (gradations_yaw <= -75)
-            {
-                g.DrawLine(p, new Point(450 + gradations_yaw, 10), new Point(450 + gradations_yaw, 20));
-            }
-
-            g.DrawLine(p, new Point(200 + gradations_yaw, 10), new Point(200 + gradations_yaw, 20));
-            g.DrawLine(p, new Point(225 + gradations_yaw, 10), new Point(225 + gradations_yaw, 20));
-            g.DrawLine(p, new Point(250 + gradations_yaw, 10), new Point(250 + gradations_yaw, 30));
-            g.DrawLine(p, new Point(275 + gradations_yaw, 10), new Point(275 + gradations_yaw, 20));
-            g.DrawLine(p, new Point(300 + gradations_yaw, 10), new Point(300 + gradations_yaw, 20));
-            g.DrawLine(p, new Point(325 + gradations_yaw, 10), new Point(325 + gradations_yaw, 20));
-            g.DrawLine(p, new Point(350 + gradations_yaw, 10), new Point(350 + gradations_yaw, 30));
-            g.DrawLine(p, new Point(375 + gradations_yaw, 10), new Point(375 + gradations_yaw, 20));
-            g.DrawLine(p, new Point(400 + gradations_yaw, 10), new Point(400 + gradations_yaw, 20));
 
             if (MAGyaw <= Math.PI / 6)
             {
@@ -548,7 +508,7 @@ namespace WindowsFormsApp1
             if (TAS <= 50)
             {
                 g.DrawLine(p, new Point(250, 250), new Point(250 + pix_bvy, 250 - pix_bvx));
-                // g.DrawEllipse(p, 247, 247, 6, 6);
+
                 g.DrawEllipse(p, 247 + pix_bvy, 247 - pix_bvx, 6, 6);
             }
         }
@@ -583,20 +543,21 @@ namespace WindowsFormsApp1
             g.DrawString(Convert.ToString((int)altRad) + "R", new Font("Lucida Console", 14), Brushes.LimeGreen, new PointF(412, 78));
 
 
-            g.DrawLine(p, new Point(400, 100), new Point(430, 100));
-            g.DrawLine(p, new Point(400, 150), new Point(430, 150));
-            g.DrawLine(p, new Point(410, 170), new Point(420, 170));
-            g.DrawLine(p, new Point(410, 190), new Point(420, 190));
-            g.DrawLine(p, new Point(410, 210), new Point(420, 210));
-            g.DrawLine(p, new Point(410, 230), new Point(420, 230));
-            g.DrawLine(p, new Point(400, 250), new Point(420, 250));
-            g.DrawLine(p, new Point(400, 250), new Point(430, 250));
-            g.DrawLine(p, new Point(410, 270), new Point(420, 270));
-            g.DrawLine(p, new Point(410, 290), new Point(420, 290));
-            g.DrawLine(p, new Point(410, 310), new Point(420, 310));
-            g.DrawLine(p, new Point(410, 330), new Point(420, 330));
-            g.DrawLine(p, new Point(400, 350), new Point(430, 350));
-            g.DrawLine(p, new Point(400, 400), new Point(430, 400));
+            g.DrawLine(p, new Point(a, 100), new Point(a + 30, 100));
+            g.DrawLine(p, new Point(a, 150), new Point(a + 30, 150));
+            g.DrawLine(p, new Point(a + 10, 170), new Point(a + 20, 170));
+            g.DrawLine(p, new Point(a + 10, 190), new Point(a + 20, 190));
+            g.DrawLine(p, new Point(a + 10, 210), new Point(a + 20, 210));
+            g.DrawLine(p, new Point(a + 10, 230), new Point(a + 20, 230));
+            //g.DrawLine(p, new Point(a, 250), new Point(a+20, 250));
+            g.DrawLine(p, new Point(a, 250), new Point(a + 30, 250));
+            g.DrawLine(p, new Point(a + 10, 270), new Point(a + 20, 270));
+            g.DrawLine(p, new Point(a + 10, 290), new Point(a + 20, 290));
+            g.DrawLine(p, new Point(a + 10, 310), new Point(a + 20, 310));
+            g.DrawLine(p, new Point(a + 10, 330), new Point(a + 20, 330));
+            g.DrawLine(p, new Point(a, 350), new Point(a + 30, 350));
+            g.DrawLine(p, new Point(a, 400), new Point(a + 30, 400));
+
             g.DrawLine(p, new Point(398, 244 - (int)(VerticalVelocity * 20)), new Point(398, 256 - (int)(VerticalVelocity * 20)));
             g.DrawLine(p, new Point(398, 244 - (int)(VerticalVelocity * 20)), new Point(410, 250 - (int)(VerticalVelocity * 20)));
             g.DrawLine(p, new Point(398, 256 - (int)(VerticalVelocity * 20)), new Point(410, 250 - (int)(VerticalVelocity * 20)));
@@ -652,12 +613,13 @@ namespace WindowsFormsApp1
 
             //CTB = 0;
             //STB = 0;
-            if (TAS >= 25 && TAS <= 50)
+            if (TAS >= 25 && TAS <= 60)
             {
-                g.DrawLine(p, new Point(250 - ((int)(100 * CB)), 250 + ((int)(100 * SB)) + ((int)(pitch / Math.PI * 900))), new Point(250 + ((int)(100 * CB)), 250 - ((int)(100 * SB)) + ((int)(pitch / Math.PI * 900))));
+                g.DrawLine(p, new Point((int)(mid - LCB), (int)(mid + LSB) + acc),
+                    new Point((int)(mid + LCB), (int)(mid - LSB) + acc));
 
             }
-            if (TAS > 50)
+            if (TAS > 60)
             {
                 SSB = short_line * SB;
                 SCB = short_line * CB;
@@ -667,12 +629,12 @@ namespace WindowsFormsApp1
                 g.DrawLine(p, new Point((int)(mid - LCB), (int)(mid + LSB) + acc),
                     new Point((int)(mid + LCB), (int)(mid - LSB) + acc));
 
-                g.DrawLine(p, new Point((int)(mid - SCB+SCTB), (int)(mid + SSB-SSTB) + acc),
+                g.DrawLine(p, new Point((int)(mid - SCB + SCTB), (int)(mid + SSB - SSTB) + acc),
                     new Point((int)(mid + SCB + SCTB), (int)(mid - SSB - SSTB) + acc));
                 g.DrawLine(p, new Point((int)(mid - SCB - SCTB), (int)(mid + SSB + SSTB) + acc),
                  new Point((int)(mid + SCB - SCTB), (int)(mid - SSB + SSTB) + acc));
 
-               
+
 
             }
         }
@@ -702,7 +664,8 @@ namespace WindowsFormsApp1
             height_indicator();
             draw_ADI();
             draw_others();
-            this.CreateGraphics().DrawImage(bmp, 0, 0);           
+
+            this.CreateGraphics().DrawImage(bmp, (int)((mywidth - pic_size) / 2), (int)((myheight - pic_size) / 2));
         }
 
 
@@ -723,6 +686,8 @@ namespace WindowsFormsApp1
             kh.SetHook();
 
             kh.OnKeyDownEvent += kh_OnKeyDownEvent;
+            mywidth = this.Width;
+            myheight = this.Height;
 
         }
 
@@ -743,7 +708,7 @@ namespace WindowsFormsApp1
                     flag_hide = 0;
                 }
 
-            }//Ctrl+S显示窗口
+            }
 
             if (e.KeyData == (Keys.H | Keys.Control))
             {
@@ -751,23 +716,19 @@ namespace WindowsFormsApp1
                 {
                     flag = 1;
                     startup();
-                    //recive_loop();
-                    timer1.Start();
-                    // g.DrawString("waiting to connect", new Font("Arial", 10), Brushes.GreenYellow, new PointF(180, 30));
+                    this.Show();
+                    flag_hide = 0;
                 }
                 else
                 {
                     flag = 0;
                     timer1.Stop();
                     g.Clear(Color.White);
-                    // button1.BackColor = Color.LimeGreen;
                     this.Hide();
+                    flag_hide = 1;
                 }
-            }//Ctrl+H隐藏窗口
-
+            }
             if (e.KeyData == (Keys.Q | Keys.Control)) { System.Environment.Exit(0); }//Ctrl+C 关闭窗口 
-
-            // if (e.KeyData == (Keys.A | Keys.Control | Keys.Alt)) { this.Text = "你发现了什么？"; }//Ctrl+Alt+A
 
 
         }
@@ -782,91 +743,91 @@ namespace WindowsFormsApp1
         private void b1click(object sender, EventArgs e)
         {
 
-            //接受网络设置
-            server_r = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            server_r.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345));//绑定端口号和IP  
-            server_r.ReceiveTimeout = 1000000;
-            server_r.SendTimeout = 1000000;
-            EndPoint point2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
-            timer1.Start();
-            button1.BackColor = Color.White;
-            button1.Enabled = false;
+            ////接受网络设置
+            //server_r = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            //server_r.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345));//绑定端口号和IP  
+            //server_r.ReceiveTimeout = 1000000;
+            //server_r.SendTimeout = 1000000;
+            //EndPoint point2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
+            //timer1.Start();
+            //button1.BackColor = Color.White;
+            //button1.Enabled = false;
 
 
 
 
-            while (true)
-            {
+            //while (true)
+            //{
 
 
-                //接受
-                byte[] buffer = new byte[10240];
-                int length = server_r.ReceiveFrom(buffer, ref point2);//接收数据报  
-                string message = Encoding.UTF8.GetString(buffer, 0, length);
-                if (message == "quit") { break; }
+            //    //接受
+            //    byte[] buffer = new byte[10240];
+            //    int length = server_r.ReceiveFrom(buffer, ref point2);//接收数据报  
+            //    string message = Encoding.UTF8.GetString(buffer, 0, length);
+            //    if (message == "quit") { break; }
 
-                string head = message.Substring(0, 2);
-                string body = message.Substring(2);
-
-
-
-                if (head == "tm")
-                {
-                    currentSimTime = float.Parse(body);
-
-                }
-                else if (head == "va")
-                {
-                    TAS = float.Parse(body);
-                    TAS = TAS * (float)3.6;
-
-
-                }
-                else
-                {
-
-                    if (head == "ms")
-                    {
+            //    string head = message.Substring(0, 2);
+            //    string body = message.Substring(2);
 
 
 
-                        string[] rawData = body.Split(';');
-                        string[] STData = rawData[0].Split(',');
+            //    if (head == "tm")
+            //    {
+            //        currentSimTime = float.Parse(body);
 
-                        simtime = double.Parse(STData[0]);
-                        vvx = double.Parse(STData[1]);
-                        vvy = double.Parse(STData[2]);
-                        vvz = double.Parse(STData[3]);
-                        MAGyaw = double.Parse(STData[4]);
-                        altBar = double.Parse(STData[5]);
-                        altRad = double.Parse(STData[6]);
-                        VerticalVelocity = double.Parse(STData[7]);
-                        dVerticalVelocity = VerticalVelocity - oVerticalVelocity;
-                        oVerticalVelocity = VerticalVelocity;
-                        pitch = double.Parse(STData[8]);
-                        bank = double.Parse(STData[9]);
-                        yaw = double.Parse(STData[10]);
-                        lRPM = double.Parse(STData[11]);
-                        rRPM = double.Parse(STData[12]);
-                        bvx = (vvx * Math.Cos(yaw) + vvz * Math.Sin(yaw)) * 0.5 + obvx * 0.5;
-                        bvy = (-vvx * Math.Sin(yaw) + vvz * Math.Cos(yaw)) * 0.5 + obvy * 0.5;
-                        obvx = bvx;
-                        obvy = bvy;
-                        SBP = Math.Sin(Math.Atan2(obvy, obvx));
-                        dis_yaw = Convert.ToString((int)(MAGyaw / Math.PI * 180));
-                        gradations_yaw = -(int)(((MAGyaw / Math.PI * 90) % 10) * 10);
-                    }
-                }
+            //    }
+            //    else if (head == "va")
+            //    {
+            //        TAS = float.Parse(body);
+            //        TAS = TAS * (float)3.6;
+
+
+            //    }
+            //    else
+            //    {
+
+            //        if (head == "ms")
+            //        {
 
 
 
+            //            string[] rawData = body.Split(';');
+            //            string[] STData = rawData[0].Split(',');
+
+            //            simtime = double.Parse(STData[0]);
+            //            vvx = double.Parse(STData[1]);
+            //            vvy = double.Parse(STData[2]);
+            //            vvz = double.Parse(STData[3]);
+            //            MAGyaw = double.Parse(STData[4]);
+            //            altBar = double.Parse(STData[5]);
+            //            altRad = double.Parse(STData[6]);
+            //            VerticalVelocity = double.Parse(STData[7]);
+            //            dVerticalVelocity = VerticalVelocity - oVerticalVelocity;
+            //            oVerticalVelocity = VerticalVelocity;
+            //            pitch = double.Parse(STData[8]);
+            //            bank = double.Parse(STData[9]);
+            //            yaw = double.Parse(STData[10]);
+            //            lRPM = double.Parse(STData[11]);
+            //            rRPM = double.Parse(STData[12]);
+            //            bvx = (vvx * Math.Cos(yaw) + vvz * Math.Sin(yaw)) * 0.5 + obvx * 0.5;
+            //            bvy = (-vvx * Math.Sin(yaw) + vvz * Math.Cos(yaw)) * 0.5 + obvy * 0.5;
+            //            obvx = bvx;
+            //            obvy = bvy;
+            //            SBP = Math.Sin(Math.Atan2(obvy, obvx));
+            //            dis_yaw = Convert.ToString((int)(MAGyaw / Math.PI * 180));
+            //            //gradations_yaw = -(int)(((MAGyaw / Math.PI * 90) % 10) * 10);
+            //        }
+            //    }
 
 
-                Application.DoEvents();
 
 
 
-            }
+            //    Application.DoEvents();
+
+
+
+            //}
         }
 
 
@@ -877,7 +838,17 @@ namespace WindowsFormsApp1
 
         }
 
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+
+
+        }
         private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_KeyDown(object sender, KeyEventArgs e)
         {
 
         }
