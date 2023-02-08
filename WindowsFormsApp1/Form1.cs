@@ -19,8 +19,8 @@ namespace WindowsFormsApp1
         static Socket server_r;
         //接收socket
         static float currentSimTime, TAS;
-        static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, dVerticalVelocity,
-            VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS;
+        static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, odVerticalVelocity, dVerticalVelocity,
+            VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS, odTAS,camx,camy,camz;
         static int flag = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0;
         static int pix_bvx, pix_bvy;
         static int mywidth, myheight;
@@ -28,7 +28,7 @@ namespace WindowsFormsApp1
 
         KeyboardHook kh;
 
-        static string dis_yaw;
+        static string dis_yaw,dis_visyaw;
         //static int gradations_yaw;
         static Bitmap bmp = new Bitmap(pic_size, pic_size);
 
@@ -301,6 +301,7 @@ namespace WindowsFormsApp1
         private void recive()
         {
             int length = 0;
+            double filter_par=0.05;
             //接受
             byte[] buffer = new byte[1024];
             EndPoint point2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
@@ -343,7 +344,8 @@ namespace WindowsFormsApp1
                 {
                     TAS = float.Parse(body);
                     TAS = TAS * (float)3.6;
-                    dTAS = TAS - oTAS;
+                    dTAS = (TAS - oTAS) * filter_par + odTAS * (1 - filter_par);
+                    odTAS = dTAS;
                     oTAS = TAS;
 
 
@@ -367,19 +369,22 @@ namespace WindowsFormsApp1
                         altBar = double.Parse(STData[5]);
                         altRad = double.Parse(STData[6]);
                         VerticalVelocity = double.Parse(STData[7]);
-                        dVerticalVelocity = VerticalVelocity - oVerticalVelocity;
+                        dVerticalVelocity = (VerticalVelocity - oVerticalVelocity)* filter_par+odVerticalVelocity*(1- filter_par);
+                        odVerticalVelocity = dVerticalVelocity;
                         oVerticalVelocity = VerticalVelocity;
                         pitch = double.Parse(STData[8]);
                         bank = double.Parse(STData[9]);
                         yaw = double.Parse(STData[10]);
                         lRPM = double.Parse(STData[11]);
                         rRPM = double.Parse(STData[12]);
+                        camx= double.Parse(STData[13]);
                         bvx = (vvx * Math.Cos(yaw) + vvz * Math.Sin(yaw)) * 0.5 + obvx * 0.5;
                         bvy = (-vvx * Math.Sin(yaw) + vvz * Math.Cos(yaw)) * 0.5 + obvy * 0.5;
                         obvx = bvx;
                         obvy = bvy;
-                        SBP = Math.Sin(Math.Atan2(obvy, obvx));
+                        SBP = Math.Sin(Math.Atan2(obvy, obvx)); 
                         dis_yaw = Convert.ToString((int)(MAGyaw / Math.PI * 180));
+                        dis_visyaw = Convert.ToString((int)(camx / Math.PI * 180));
 
                     }
                 }
@@ -492,6 +497,73 @@ namespace WindowsFormsApp1
 
         }
 
+        private void draw_visyaw_indicator()
+        {
+            int a = 480; //上缘 
+            int b; //短下缘
+            int c = 500; //长下缘
+            int j = 1;
+            int gap, pos, num = 30;
+            int gradations_yaw;
+
+            gap = (400 - 100) / num;
+            gradations_yaw = (int)(((camx / Math.PI * 90) % 10) * 5);
+
+            for (int i = 0 ; i <= 400; i += gap)
+            {
+
+                if (j < 5)
+                {
+                    j++;
+                    b = 490;
+                }
+                else
+                {
+                    j = 1;
+                    b = c;
+                }
+                pos = i + gradations_yaw;
+
+
+
+                if (pos >= 100 && pos <= 400)
+                {
+                    g.DrawLine(p, new Point(pos, a), new Point(pos, b));
+                }
+            }
+
+
+
+            //if (MAGyaw <= Math.PI / 6)
+            //{
+            //    g.DrawString("N", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(245 - (int)(MAGyaw / Math.PI * 900), 0));
+            //}
+            //if (MAGyaw >= Math.PI / 6 * 11)
+            //{
+            //    g.DrawString("N", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(2045 - (int)(MAGyaw / Math.PI * 900), 0));
+            //}
+
+            //if (MAGyaw >= Math.PI / 3 && MAGyaw <= Math.PI / 6 * 4)
+            //{
+            //    g.DrawString("E", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(695 - (int)(MAGyaw / Math.PI * 900), 0));
+            //}
+
+            //if (MAGyaw >= Math.PI / 6 * 5 && MAGyaw <= Math.PI / 6 * 7)
+            //{
+            //    g.DrawString("S", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(1145 - (int)(MAGyaw / Math.PI * 900), 0));
+            //}
+
+            //if (MAGyaw >= Math.PI / 6 * 8 && MAGyaw <= Math.PI / 6 * 10)
+            //{
+            //    g.DrawString("W", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(1595 - (int)(MAGyaw / Math.PI * 900), 0));
+            //}
+
+            g.DrawString(dis_visyaw, new Font("Lucida Console", 15), Brushes.LimeGreen, new PointF(235, 470));
+
+          //  g.DrawRectangle(p, 247, 490, 6, 20);
+
+        }
+
         private void draw_vectorspeed_indicator()
         {
             if (TAS <= 25)
@@ -516,7 +588,7 @@ namespace WindowsFormsApp1
         private void tas_indicator()
         {
             g.DrawString(Convert.ToString((int)TAS), new Font("Lucida Console", 14), Brushes.LimeGreen, new PointF(66, 78));
-            g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(Math.Atan(dTAS * 200)/Math.PI*300)));
+            g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(Math.Atan(dTAS * 30)/Math.PI*300)));
 
 
             if (TAS <= 50)
@@ -565,6 +637,8 @@ namespace WindowsFormsApp1
                 g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
                 g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
                 g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                g.DrawString(Convert.ToString((int)Math.Abs( VerticalVelocity)), new Font("Lucida Console", 12), Brushes.LimeGreen,
+                    new PointF(385, 244 - dis_VerticalVelocity));
             }
             else
             {
@@ -574,16 +648,20 @@ namespace WindowsFormsApp1
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                    g.DrawString(Convert.ToString((int)Math.Abs(VerticalVelocity)), new Font("Lucida Console", 12), Brushes.LimeGreen,
+                      new PointF(385, 244 - dis_VerticalVelocity));
                 }
                 else
                 {
-                    dis_VerticalVelocity = (int)(Math.Atan(VerticalVelocity + 5) / Math.PI * 100 + 100);
+                    dis_VerticalVelocity = (int)(Math.Atan(VerticalVelocity + 5) / Math.PI * 100 - 100);
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                    g.DrawString(Convert.ToString((int)Math.Abs(VerticalVelocity)), new Font("Lucida Console", 12), Brushes.LimeGreen,
+                    new PointF(385, 244 - dis_VerticalVelocity));
                 }
             }
-            g.DrawLine(p2, new Point(435, 250), new Point(435, 250 - (int)(Math.Atan(dVerticalVelocity * 300)/Math.PI*300)));
+            g.DrawLine(p2, new Point(435, 250), new Point(435, 250 - (int)(Math.Atan(dVerticalVelocity * 100)/Math.PI*300)));
 
             if (altRad <= 50)
             {
@@ -600,11 +678,13 @@ namespace WindowsFormsApp1
                 g.DrawString("1000", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(440, 90));
             }
 
-            if (TAS <= 50 && VerticalVelocity <= -4)
+            if (TAS <= 60 && VerticalVelocity <= -4)
             {
-                g.DrawString("VRS", new Font("Lucida Console", 30), Brushes.LimeGreen, new PointF(200, 150));
+                g.DrawString("VRS", new Font("Lucida Console", 34), Brushes.LimeGreen, new PointF(200, 150));
                 g.DrawRectangle(p, 200, 154, 100, 35);
             }
+
+            g.DrawString(Convert.ToString((int)Math.Abs(camx)), new Font("Lucida Console", 34), Brushes.LimeGreen, new PointF(200, 150));
         }
 
         private void draw_ADI()
@@ -689,6 +769,7 @@ namespace WindowsFormsApp1
             height_indicator();
             draw_ADI();
             draw_others();
+            draw_visyaw_indicator();
 
             this.CreateGraphics().DrawImage(bmp, (int)((mywidth - pic_size) / 2), (int)((myheight - pic_size) / 2));
         }
