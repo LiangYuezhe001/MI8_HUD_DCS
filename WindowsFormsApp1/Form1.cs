@@ -516,7 +516,7 @@ namespace WindowsFormsApp1
         private void tas_indicator()
         {
             g.DrawString(Convert.ToString((int)TAS), new Font("Lucida Console", 14), Brushes.LimeGreen, new PointF(66, 78));
-            g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(dTAS * 200)));
+            g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(Math.Atan(dTAS * 200)/Math.PI*300)));
 
 
             if (TAS <= 50)
@@ -538,7 +538,8 @@ namespace WindowsFormsApp1
 
         private void height_indicator()
         {
-            int a = 400;
+            int a = 400, dis_VerticalVelocity;
+            
             g.DrawString(Convert.ToString((int)altBar) + "B", new Font("Lucida Console", 14), Brushes.LimeGreen, new PointF(412, 58));
             g.DrawString(Convert.ToString((int)altRad) + "R", new Font("Lucida Console", 14), Brushes.LimeGreen, new PointF(412, 78));
 
@@ -558,11 +559,31 @@ namespace WindowsFormsApp1
             g.DrawLine(p, new Point(a, 350), new Point(a + 30, 350));
             g.DrawLine(p, new Point(a, 400), new Point(a + 30, 400));
 
-            g.DrawLine(p, new Point(398, 244 - (int)(VerticalVelocity * 20)), new Point(398, 256 - (int)(VerticalVelocity * 20)));
-            g.DrawLine(p, new Point(398, 244 - (int)(VerticalVelocity * 20)), new Point(410, 250 - (int)(VerticalVelocity * 20)));
-            g.DrawLine(p, new Point(398, 256 - (int)(VerticalVelocity * 20)), new Point(410, 250 - (int)(VerticalVelocity * 20)));
-
-            g.DrawLine(p2, new Point(435, 250), new Point(435, 250 - (int)(dVerticalVelocity * 3000)));
+            if (Math.Abs(VerticalVelocity) <= 5)
+            {
+                dis_VerticalVelocity = (int)(VerticalVelocity * 20);
+                g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
+                g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+            }
+            else
+            {
+                if (VerticalVelocity > 0)
+                {
+                    dis_VerticalVelocity = (int)(Math.Atan(VerticalVelocity - 5) / Math.PI * 100 + 100);
+                    g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
+                    g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                    g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                }
+                else
+                {
+                    dis_VerticalVelocity = (int)(Math.Atan(VerticalVelocity + 5) / Math.PI * 100 + 100);
+                    g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
+                    g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                    g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
+                }
+            }
+            g.DrawLine(p2, new Point(435, 250), new Point(435, 250 - (int)(Math.Atan(dVerticalVelocity * 300)/Math.PI*300)));
 
             if (altRad <= 50)
             {
@@ -633,22 +654,26 @@ namespace WindowsFormsApp1
                     new Point((int)(mid + SCB + SCTB), (int)(mid - SSB - SSTB) + acc));
                 g.DrawLine(p, new Point((int)(mid - SCB - SCTB), (int)(mid + SSB + SSTB) + acc),
                  new Point((int)(mid + SCB - SCTB), (int)(mid - SSB + SSTB) + acc));
-
-
-
             }
+
         }
 
         private void draw_others()
         {
             ////////////////////////RPM/////////////
+            ///
+            if (lRPM <= 70) { lRPM = 70; }
+            if (rRPM <= 70) { rRPM = 70; }
             g.DrawString(Convert.ToString((int)(lRPM)), new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(60, 410));
             g.DrawString(Convert.ToString((int)(rRPM)), new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(80, 410));
             g.DrawLine(p, new Point(69, 400), new Point(69, 400 - (int)((rRPM - 70) * 10)));
             g.DrawLine(p, new Point(67, 400), new Point(67, 400 - (int)((lRPM - 70) * 10)));
             ///////////////////////////////////////////////////////////
             ///////////////////SBP////////////////////////
-
+            if (TAS < 1)
+            {
+                SBP = 0;
+            }
             g.DrawLine(p, new Point(150, 420), new Point(350, 420));
             g.DrawRectangle(p, 235, 400, 20, 20);
             g.DrawEllipse(p, 235 + (int)(SBP * 100), 400, 20, 20);
@@ -718,6 +743,7 @@ namespace WindowsFormsApp1
                     startup();
                     this.Show();
                     flag_hide = 0;
+                    flag_timeout = 0;
                 }
                 else
                 {

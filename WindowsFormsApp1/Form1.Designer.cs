@@ -35,8 +35,8 @@
             // 
             // button1
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.BackColor = System.Drawing.Color.PaleGreen;
             this.button1.FlatAppearance.BorderColor = System.Drawing.Color.White;
@@ -46,10 +46,10 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.button1.Location = new System.Drawing.Point(176, 600);
+            this.button1.Location = new System.Drawing.Point(176, 648);
             this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(302, 61);
+            this.button1.Size = new System.Drawing.Size(302, 13);
             this.button1.TabIndex = 0;
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.b1click);
@@ -73,7 +73,7 @@
             this.MinimizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = " ";
+            this.Text = "HUD";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.From1_paint);
