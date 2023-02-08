@@ -500,16 +500,16 @@ namespace WindowsFormsApp1
             int j = 1;
             int gap, pos, num = 30;
             int gradations_yaw;
-            magdiff = MAGyaw - yaw;
+            //magdiff = MAGyaw - yaw;
             if (camz >= 0)
             {
-                visyaw = (camx + 1) * 90 + 180 + magdiff;
+                visyaw = (camx + 1) * 90 + 180 ;
                 dis_visyaw = string.Format("{0:d3}", (int)visyaw);
                 
             }
             else
             {
-                visyaw = -(camx + 1) * 90 + 180 + magdiff;
+                visyaw = -(camx + 1) * 90 + 180 ;
                 dis_visyaw = string.Format("{0:d3}", (int)visyaw);
             }
 
