@@ -426,8 +426,9 @@ namespace WindowsFormsApp1
         private void pause()
         {
             flag_puase = 0;
-            timer1.Stop();
             g.Clear(Color.White);
+            timer1.Stop();
+            
             this.Hide();
             flag_hide = 1;
         }
