@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
         //接收socket
         static float currentSimTime, TAS;
         static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, odVerticalVelocity, dVerticalVelocity,
-            VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS, odTAS,camx,camy,camz;
+            VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS, odTAS,camx,camy,camz, visyaw,magdiff;
         static int flag = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0;
         static int pix_bvx, pix_bvy;
         static int mywidth, myheight;
@@ -378,13 +378,8 @@ namespace WindowsFormsApp1
                         lRPM = double.Parse(STData[11]);
                         rRPM = double.Parse(STData[12]);
                         camx= double.Parse(STData[13]);
-                        bvx = (vvx * Math.Cos(yaw) + vvz * Math.Sin(yaw)) * 0.5 + obvx * 0.5;
-                        bvy = (-vvx * Math.Sin(yaw) + vvz * Math.Cos(yaw)) * 0.5 + obvy * 0.5;
-                        obvx = bvx;
-                        obvy = bvy;
-                        SBP = Math.Sin(Math.Atan2(obvy, obvx)); 
-                        dis_yaw = Convert.ToString((int)(MAGyaw / Math.PI * 180));
-                        dis_visyaw = Convert.ToString((int)(camx / Math.PI * 180));
+                        camz = double.Parse(STData[15]);
+                     
 
                     }
                 }
@@ -440,8 +435,8 @@ namespace WindowsFormsApp1
             int gradations_yaw;
 
             gap = (400 - 100) / num;
-            gradations_yaw = -(int)(((MAGyaw / Math.PI * 90) % 10) * 10);
-
+            gradations_yaw = -(int)(((MAGyaw / Math.PI * 90) % 10) * 10);            
+            dis_yaw = string.Format("{0:d3}", (int)(MAGyaw / Math.PI * 180));
             for (int i = 100 + gap; i <= 500; i += gap)
             {
 
@@ -491,7 +486,7 @@ namespace WindowsFormsApp1
                 g.DrawString("W", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(1595 - (int)(MAGyaw / Math.PI * 900), 0));
             }
 
-            g.DrawString(dis_yaw, new Font("Lucida Console", 15), Brushes.LimeGreen, new PointF(235, 30));
+            g.DrawString(dis_yaw, new Font("Lucida Console", 16), Brushes.LimeGreen, new PointF(226, 30));
 
             g.DrawRectangle(p, 247, 10, 6, 20);
 
@@ -499,17 +494,29 @@ namespace WindowsFormsApp1
 
         private void draw_visyaw_indicator()
         {
-            int a = 480; //上缘 
+            int a = 500; //上缘 
             int b; //短下缘
-            int c = 500; //长下缘
+            int c = 480; //长下缘
             int j = 1;
             int gap, pos, num = 30;
             int gradations_yaw;
+            magdiff = MAGyaw - yaw;
+            if (camz >= 0)
+            {
+                visyaw = (camx + 1) * 90 + 180 + magdiff;
+                dis_visyaw = string.Format("{0:d3}", (int)visyaw);
+                
+            }
+            else
+            {
+                visyaw = -(camx + 1) * 90 + 180 + magdiff;
+                dis_visyaw = string.Format("{0:d3}", (int)visyaw);
+            }
 
             gap = (400 - 100) / num;
-            gradations_yaw = (int)(((camx / Math.PI * 90) % 10) * 5);
+            gradations_yaw = -(int)((visyaw % 10) * 5);
 
-            for (int i = 0 ; i <= 400; i += gap)
+            for (int i = 100 ; i <= 500; i += gap)
             {
 
                 if (j < 5)
@@ -533,39 +540,19 @@ namespace WindowsFormsApp1
             }
 
 
+           // dis_visyaw = string.Format("{0:d3}", dis_visyaw);
+            g.DrawString(dis_visyaw, new Font("Lucida Console", 16), Brushes.LimeGreen, new PointF(226, 460));
 
-            //if (MAGyaw <= Math.PI / 6)
-            //{
-            //    g.DrawString("N", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(245 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-            //if (MAGyaw >= Math.PI / 6 * 11)
-            //{
-            //    g.DrawString("N", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(2045 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            //if (MAGyaw >= Math.PI / 3 && MAGyaw <= Math.PI / 6 * 4)
-            //{
-            //    g.DrawString("E", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(695 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            //if (MAGyaw >= Math.PI / 6 * 5 && MAGyaw <= Math.PI / 6 * 7)
-            //{
-            //    g.DrawString("S", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(1145 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            //if (MAGyaw >= Math.PI / 6 * 8 && MAGyaw <= Math.PI / 6 * 10)
-            //{
-            //    g.DrawString("W", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(1595 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            g.DrawString(dis_visyaw, new Font("Lucida Console", 15), Brushes.LimeGreen, new PointF(235, 470));
-
-          //  g.DrawRectangle(p, 247, 490, 6, 20);
+            g.DrawRectangle(p, 247, 480, 6, 20);
 
         }
 
         private void draw_vectorspeed_indicator()
         {
+            bvx = (vvx * Math.Cos(yaw) + vvz * Math.Sin(yaw)) * 0.5 + obvx * 0.5;
+            bvy = (-vvx * Math.Sin(yaw) + vvz * Math.Cos(yaw)) * 0.5 + obvy * 0.5;
+            obvx = bvx;
+            obvy = bvy;
             if (TAS <= 25)
             {
                 pix_bvx = (int)(bvx * 20);
@@ -596,7 +583,7 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 70, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(75, 400), new Point(75, 400 - (int)(TAS * 6)));
-                g.DrawString("50", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(50, 90));
+                g.DrawString("50", new Font("Lucida Console", 12), Brushes.LimeGreen, new PointF(40, 100));
 
             }
             else
@@ -604,7 +591,7 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 70, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(75, 400), new Point(75, 400 - (int)(TAS)));
-                g.DrawString("300", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(40, 90));
+                g.DrawString("300", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(30, 100));
             }
         }
 
@@ -668,14 +655,14 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 420, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(425, 400), new Point(425, 400 - (int)(altRad * 6)));
-                g.DrawString("50", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(440, 90));
+                g.DrawString("50", new Font("Lucida Console", 12), Brushes.LimeGreen, new PointF(440, 100));
             }
             else
             {
                 g.DrawRectangle(p, 420, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(425, 400), new Point(425, 400 - (int)(altRad * 6 / 20)));
-                g.DrawString("1000", new Font("Lucida Console", 10), Brushes.LimeGreen, new PointF(440, 90));
+                g.DrawString("1000", new Font("Lucida Console", 12), Brushes.LimeGreen, new PointF(440, 100));
             }
 
             if (TAS <= 60 && VerticalVelocity <= -4)
@@ -684,7 +671,7 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 200, 154, 100, 35);
             }
 
-            g.DrawString(Convert.ToString((int)Math.Abs(camx)), new Font("Lucida Console", 34), Brushes.LimeGreen, new PointF(200, 150));
+            
         }
 
         private void draw_ADI()
@@ -754,10 +741,18 @@ namespace WindowsFormsApp1
             {
                 SBP = 0;
             }
-            g.DrawLine(p, new Point(150, 420), new Point(350, 420));
-            g.DrawRectangle(p, 235, 400, 20, 20);
-            g.DrawEllipse(p, 235 + (int)(SBP * 100), 400, 20, 20);
-            ////////////////////////////////////////(int)((myheight - pic_size) / 2)
+            else
+            {
+                SBP = Math.Sin(Math.Atan2(obvy, obvx));
+            }
+            g.DrawLine(p, new Point(150, 450), new Point(350, 450));
+            g.DrawRectangle(p, 235, 430, 20, 20);
+            g.DrawEllipse(p, 235 + (int)(SBP * 100), 430, 20, 20);
+            ////////////////////////////////////////
+            ///time
+            ///
+            g.DrawString(Convert.ToString((int)currentSimTime), new Font("Lucida Console", 12), Brushes.LimeGreen, new PointF(410, 410));
+            /////////////////////////////////////
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
