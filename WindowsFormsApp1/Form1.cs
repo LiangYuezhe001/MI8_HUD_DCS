@@ -21,7 +21,7 @@ namespace WindowsFormsApp1
         static float currentSimTime, TAS;
         static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, odVerticalVelocity, dVerticalVelocity,
             VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS, odTAS,camx,camy,camz, visyaw,magdiff;
-        static int flag = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0;
+        static int flag_puase = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0;
         static int pix_bvx, pix_bvy;
         static int mywidth, myheight;
         static int pic_size = 500;
@@ -298,6 +298,8 @@ namespace WindowsFormsApp1
 
         }
 
+
+
         private void recive()
         {
             int length = 0;
@@ -313,7 +315,7 @@ namespace WindowsFormsApp1
             catch (SocketException)
             {
 
-               
+                pause();
                 flag_timeout = 1;
             }
             if (flag_timeout == 0)
@@ -323,7 +325,7 @@ namespace WindowsFormsApp1
 
                 if (message == "quit")
                 {
-                    flag = 0;
+                    flag_puase = 0;
                     timer1.Stop();
                     g.Clear(Color.White);
                     //this.Hide();
@@ -406,13 +408,13 @@ namespace WindowsFormsApp1
             {
 
                 recive();
-                if (flag == 0) { break; }
+                if (flag_puase == 0) { break; }
                 if (flag_timeout == 1) 
                 {
-                    g.DrawString("TIMEOUT", new Font("Lucida Console", 20), Brushes.LimeGreen, new PointF(190, 200));
-                    this.CreateGraphics().DrawImage(bmp, (int)((mywidth - pic_size) / 2), (int)((myheight - pic_size) / 2));
+                    //g.DrawString("TIMEOUT", new Font("Lucida Console", 20), Brushes.LimeGreen, new PointF(190, 200));
+                   // this.CreateGraphics().DrawImage(bmp, (int)((mywidth - pic_size) / 2), (int)((myheight - pic_size) / 2));
                     timer1.Stop();
-                    flag = 0;
+                    flag_puase = 0;
                     break; 
                 }
                 Application.DoEvents();
@@ -421,9 +423,24 @@ namespace WindowsFormsApp1
 
         }
 
+        private void pause()
+        {
+            flag_puase = 0;
+            timer1.Stop();
+            g.Clear(Color.White);
+            this.Hide();
+            flag_hide = 1;
+        }
+        
 
-
-
+        private void go_continue()
+        {
+            flag_puase = 1;
+            startup();
+            this.Show();
+            flag_hide = 0;
+            flag_timeout = 0;
+        }
 
         private void draw_magyaw_indicator()
         {
@@ -796,7 +813,7 @@ namespace WindowsFormsApp1
 
         {
 
-            if (e.KeyData == (Keys.H))
+            if (e.KeyData == (Keys.H | Keys.Control))
             {
                 if (flag_hide == 0)
                 {
@@ -811,23 +828,16 @@ namespace WindowsFormsApp1
 
             }
 
-            if (e.KeyData == (Keys.H | Keys.Control))
+            if (e.KeyData == (Keys.H ))
             {
-                if (flag == 0)
+                if (flag_puase == 0)
                 {
-                    flag = 1;
-                    startup();
-                    this.Show();
-                    flag_hide = 0;
-                    flag_timeout = 0;
+                    go_continue();
+                   
                 }
                 else
                 {
-                    flag = 0;
-                    timer1.Stop();
-                    g.Clear(Color.White);
-                    this.Hide();
-                    flag_hide = 1;
+                    pause();
                 }
             }
             if (e.KeyData == (Keys.Q | Keys.Control)) { System.Environment.Exit(0); }//Ctrl+C 关闭窗口 
