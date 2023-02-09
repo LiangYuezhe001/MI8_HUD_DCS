@@ -22,23 +22,28 @@ namespace WindowsFormsApp1
         static float currentSimTime, TAS;
         static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, odVerticalVelocity, dVerticalVelocity,
             VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS, odTAS,camx,camy,camz, visyaw,magdiff;
-        static int flag_puase = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0;
+        static int flag_puase = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0,color_state=1;
+        static string dis_yaw, dis_visyaw;
         static int pix_bvx, pix_bvy;
         static int mywidth, myheight;
         static int pic_size = 500;
-       // public System.Drawing.Drawing2D.SmoothingMode SmoothingMode { get; set; }
+       
         KeyboardHook kh;
-        Color color_all = Color.DarkSalmon;
-        static string dis_yaw,dis_visyaw;
-        //static int gradations_yaw;
-        static Bitmap bmp = new Bitmap(pic_size, pic_size);
 
+        static Color color_all = Color.DarkSalmon;  
+        SolidBrush drawBrush = new SolidBrush(Color.DarkSalmon);
+        Font Small_Font = new Font("Microsoft YaHei UI", 12);
+        Font Mid_Font = new Font("Microsoft YaHei UI", 16);
+        Font Big_Font = new Font("Microsoft YaHei UI", 16);
+
+
+        static Bitmap bmp = new Bitmap(pic_size, pic_size);
         Graphics g = Graphics.FromImage(bmp);
 
        
-        Pen p = new Pen(Color.DarkSalmon);
-        Pen p2 = new Pen(Color.DarkSalmon);
-        Pen dash_pen = new Pen(Color.DarkSalmon);
+        Pen p = new Pen(color_all);
+        Pen p2 = new Pen(color_all);
+        Pen dash_pen = new Pen(color_all);
        
 
     private void pause()
@@ -437,7 +442,7 @@ namespace WindowsFormsApp1
                 if (flag_puase == 0) { break; }
                 if (flag_timeout == 1) 
                 {
-                    //g.DrawString("TIMEOUT", new Font("Microsoft YaHei UI", 20), Brushes.DarkSalmon, new PointF(190, 200));
+                    //g.DrawString("TIMEOUT", new Font("Microsoft YaHei UI", 20), drawBrush, new PointF(190, 200));
                    // this.CreateGraphics().DrawImage(bmp, (int)((mywidth - pic_size) / 2), (int)((myheight - pic_size) / 2));
                     timer1.Stop();
                     flag_puase = 0;
@@ -448,8 +453,6 @@ namespace WindowsFormsApp1
             }
 
         }
-
-        
 
         private void draw_magyaw_indicator()
         {
@@ -486,33 +489,7 @@ namespace WindowsFormsApp1
                 }
             }
 
-
-
-            //if (MAGyaw <= Math.PI / 6)
-            //{
-            //    g.DrawString("N", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(245 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-            //if (MAGyaw >= Math.PI / 6 * 11)
-            //{
-            //    g.DrawString("N", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(2045 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            //if (MAGyaw >= Math.PI / 3 && MAGyaw <= Math.PI / 6 * 4)
-            //{
-            //    g.DrawString("E", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(695 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            //if (MAGyaw >= Math.PI / 6 * 5 && MAGyaw <= Math.PI / 6 * 7)
-            //{
-            //    g.DrawString("S", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(1145 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            //if (MAGyaw >= Math.PI / 6 * 8 && MAGyaw <= Math.PI / 6 * 10)
-            //{
-            //    g.DrawString("W", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(1595 - (int)(MAGyaw / Math.PI * 900), 0));
-            //}
-
-            g.DrawString(dis_yaw, new Font("Microsoft YaHei UI", 16), Brushes.DarkSalmon, 226, 30);
+            g.DrawString(dis_yaw, Mid_Font, drawBrush, 226, 30);
 
             g.DrawRectangle(p, 247, 10, 6, 20);
 
@@ -567,7 +544,7 @@ namespace WindowsFormsApp1
 
 
            // dis_visyaw = string.Format("{0:d3}", dis_visyaw);
-            g.DrawString(dis_visyaw, new Font("Microsoft YaHei UI", 16), Brushes.DarkSalmon, 226, 460);
+            g.DrawString(dis_visyaw, Mid_Font, drawBrush, 226, 456);
 
             g.DrawRectangle(p, 247, 480, 6, 20);
 
@@ -600,7 +577,7 @@ namespace WindowsFormsApp1
 
         private void tas_indicator()
         {
-            g.DrawString(Convert.ToString((int)TAS), new Font("Microsoft YaHei UI", 14), Brushes.DarkSalmon, 66, 78);
+            g.DrawString(Convert.ToString((int)TAS), Mid_Font, drawBrush, 66, 74);//空速显示
             g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(Math.Atan(dTAS * 30)/Math.PI*300)));
 
 
@@ -609,7 +586,7 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 70, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(75, 400), new Point(75, 400 - (int)(TAS * 6)));
-                g.DrawString("50", new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon, 40, 100);
+                g.DrawString("50", Small_Font, drawBrush, 40, 100);
 
             }
             else if (TAS >= 50 && TAS <= 300)
@@ -617,14 +594,14 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 70, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(75, 400), new Point(75, 400 - (int)(TAS)));
-                g.DrawString("300", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, 30, 100);
+                g.DrawString("300", Small_Font, drawBrush, 30, 100);
             }
             else
             {
                 g.DrawRectangle(p, 70, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(75, 400), new Point(75, 400 - (int)(TAS*0.6)));
-                g.DrawString("500", new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, 30, 100);
+                g.DrawString("500", Small_Font, drawBrush, 30, 100);
 
             }
         }
@@ -633,8 +610,8 @@ namespace WindowsFormsApp1
         {
             int a = 400, dis_VerticalVelocity;
             
-            g.DrawString(Convert.ToString((int)altBar) + "B", new Font("Microsoft YaHei UI", 14), Brushes.DarkSalmon, 412, 58);
-            g.DrawString(Convert.ToString((int)altRad) + "R", new Font("Microsoft YaHei UI", 14), Brushes.DarkSalmon, 412, 78);
+            g.DrawString(Convert.ToString((int)altBar) + "B", Mid_Font, drawBrush, 412, 54);//气压高度
+            g.DrawString(Convert.ToString((int)altRad) + "R", Mid_Font, drawBrush, 412, 74);//雷达高度
 
 
             g.DrawLine(p, new Point(a, 100), new Point(a + 30, 100));
@@ -651,15 +628,15 @@ namespace WindowsFormsApp1
             g.DrawLine(p, new Point(a + 10, 330), new Point(a + 20, 330));
             g.DrawLine(p, new Point(a, 350), new Point(a + 30, 350));
             g.DrawLine(p, new Point(a, 400), new Point(a + 30, 400));
-
+            
             if (Math.Abs(VerticalVelocity) <= 5)
             {
                 dis_VerticalVelocity = (int)(VerticalVelocity * 20);
                 g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
                 g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
                 g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
-                g.DrawString(Convert.ToString((int)Math.Abs( VerticalVelocity)), new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon,
-                    385, 244 - dis_VerticalVelocity);
+                g.DrawString(string.Format("{0:d2}", (int)Math.Abs(VerticalVelocity)), Small_Font, drawBrush,
+                    372, 242 - dis_VerticalVelocity);
             }
             else
             {
@@ -669,8 +646,8 @@ namespace WindowsFormsApp1
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
-                    g.DrawString(Convert.ToString((int)Math.Abs(VerticalVelocity)), new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon,
-                      385, 244 - dis_VerticalVelocity);
+                    g.DrawString(string.Format("{0:d2}", (int)Math.Abs(VerticalVelocity)), Small_Font, drawBrush,
+                      372, 242 - dis_VerticalVelocity);
                 }
                 else
                 {
@@ -678,8 +655,8 @@ namespace WindowsFormsApp1
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(398, 256 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 244 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
                     g.DrawLine(p, new Point(398, 256 - dis_VerticalVelocity), new Point(410, 250 - dis_VerticalVelocity));
-                    g.DrawString(Convert.ToString((int)Math.Abs(VerticalVelocity)), new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon,
-                    385, 244 - dis_VerticalVelocity);
+                    g.DrawString(string.Format("{0:d2}", (int)Math.Abs(VerticalVelocity)), Small_Font, drawBrush,
+                    372, 242 - dis_VerticalVelocity);
                 }
             }
             g.DrawLine(p2, new Point(435, 250), new Point(435, 250 - (int)(Math.Atan(dVerticalVelocity * 100)/Math.PI*300)));
@@ -689,14 +666,14 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 420, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(425, 400), new Point(425, 400 - (int)(altRad * 6)));
-                g.DrawString("50", new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon, 440, 100);
+                g.DrawString("50", Small_Font, drawBrush, 440, 100);
             }
             else if (altRad > 50&& altRad<1000)
                 {
                 g.DrawRectangle(p, 420, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(425, 400), new Point(425, 400 - (int)(altRad * 6 / 20)));
-                g.DrawString("1000", new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon, 440, 100);
+                g.DrawString("1000", Small_Font, drawBrush, 440, 100);
 
             }
             else
@@ -704,14 +681,10 @@ namespace WindowsFormsApp1
                 g.DrawRectangle(p, 420, 100, 10, 300);
                 p2.Width = 10;
                 g.DrawLine(p2, new Point(425, 400), new Point(425, 400 - (int)(altBar * 6 / 200)));
-                g.DrawString("10000", new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon, 440, 100);
+                g.DrawString("10000", Small_Font, drawBrush, 440, 100);
             }
             
-            if (TAS <= 60 && VerticalVelocity <= -4)
-            {
-                g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), Brushes.DarkSalmon, 200, 150);
-                g.DrawRectangle(p, 200, 154, 100, 35);
-            }
+           
 
             
         }
@@ -771,10 +744,11 @@ namespace WindowsFormsApp1
         {
             ////////////////////////RPM/////////////
             ///
+            
+            g.DrawString(Convert.ToString((int)(lRPM)), Small_Font, drawBrush, new PointF(60, 410));
+            g.DrawString(Convert.ToString((int)(rRPM)), Small_Font, drawBrush, new PointF(80, 410));
             if (lRPM <= 70) { lRPM = 70; }
             if (rRPM <= 70) { rRPM = 70; }
-            g.DrawString(Convert.ToString((int)(lRPM)), new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(60, 410));
-            g.DrawString(Convert.ToString((int)(rRPM)), new Font("Microsoft YaHei UI", 10), Brushes.DarkSalmon, new PointF(80, 410));
             g.DrawLine(p, new Point(69, 400), new Point(69, 400 - (int)((rRPM - 70) * 10)));
             g.DrawLine(p, new Point(67, 400), new Point(67, 400 - (int)((lRPM - 70) * 10)));
             ///////////////////////////////////////////////////////////
@@ -793,12 +767,20 @@ namespace WindowsFormsApp1
             ////////////////////////////////////////
             ///time
             ///
-            g.DrawString(Convert.ToString((int)currentSimTime), new Font("Microsoft YaHei UI", 12), Brushes.DarkSalmon, new PointF(410, 410));
+            g.DrawString(Convert.ToString((int)currentSimTime), Small_Font, drawBrush, new PointF(410, 410));
             /////////////////////////////////////
+            ///VRS WARNINg
+            if (TAS <= 60 && VerticalVelocity <= -4)
+            {
+                g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), drawBrush, 200, 150);
+              //  g.DrawRectangle(p, 200, 154, 100, 35);
+            }
+
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
             p.Width = 2;
+            dash_pen.Width = 3;
             g.Clear(Color.White);
             draw_magyaw_indicator();
             draw_vectorspeed_indicator();
@@ -835,11 +817,19 @@ namespace WindowsFormsApp1
            //  g.InterpolationMode = InterpolationMode.HighQualityBicubic;
            // g.CompositingQuality = CompositingQuality.HighQuality;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-
             dash_pen.DashCap = System.Drawing.Drawing2D.DashCap.Round;
-            dash_pen.DashPattern = new float[] { 40.0F, 20.0F, 10.0F, 30.0F };
-        }
+            dash_pen.DashPattern = new float[] { 8.0F, 4.0F };
 
+
+        }
+        private void new_pen()
+        {
+            p = new Pen(color_all);
+            p2 = new Pen(color_all);
+            dash_pen = new Pen(color_all);
+            dash_pen.DashCap = System.Drawing.Drawing2D.DashCap.Round;
+            dash_pen.DashPattern = new float[] { 8.0F, 4.0F };
+        }
         void kh_OnKeyDownEvent(object sender, KeyEventArgs e)
 
         {
@@ -858,7 +848,39 @@ namespace WindowsFormsApp1
                 }
 
             }
+            if (e.KeyData == (Keys.H | Keys.Control | Keys.Shift))
+            {
+                if (color_state == 0)
+                {
+                    color_all = Color.DarkSalmon;
+                    color_state = 1;
+                    new_pen();
+                    drawBrush = new SolidBrush(Color.DarkSalmon);
+                }
+                else if (color_state == 1)
+                {
+                    color_all = Color.YellowGreen;
+                    color_state = 2;
+                    new_pen();
+                    drawBrush = new SolidBrush(Color.YellowGreen);
+                }
+                else if (color_state == 2)
+                {
+                    color_all = Color.LimeGreen;
+                    color_state = 3;
+                    new_pen();
+                    drawBrush = new SolidBrush(Color.LimeGreen);
+                }
+                else
+                {
+                    color_all = Color.DarkOrange;
+                    color_state = 0;
+                    new_pen();
+                    drawBrush = new SolidBrush(Color.DarkOrange);
+                }
 
+            }
+            
             if (e.KeyData == (Keys.H ))
             {
                 if (flag_puase == 0)
@@ -871,7 +893,7 @@ namespace WindowsFormsApp1
                     pause();
                 }
             }
-            if (e.KeyData == (Keys.Q | Keys.Control)) { System.Environment.Exit(0); }//Ctrl+C 关闭窗口 
+            if (e.KeyData == (Keys.Q | Keys.Control)) { System.Environment.Exit(0); }//Ctrl+Q 关闭窗口 
 
 
         }
