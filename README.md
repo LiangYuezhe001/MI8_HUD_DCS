@@ -1,4 +1,4 @@
-# WindowsFormsApp1
+#MI8 HUD
 
 Ctrl+H 换颜色
 Ctrl+Q 退出
