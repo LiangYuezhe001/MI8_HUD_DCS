@@ -581,7 +581,7 @@ namespace WindowsFormsApp1
         {
             g.DrawString(Convert.ToString((int)TAS), Mid_Font, drawBrush, 66, 74);//空速显示
             g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(Math.Atan(dTAS * 30)/Math.PI*300)));
-            g.DrawString(ID, Mid_Font, drawBrush, 90, 90);
+            //g.DrawString(ID, Mid_Font, drawBrush, 90, 90);
 
             if (TAS <= 50)
             {
@@ -770,18 +770,49 @@ namespace WindowsFormsApp1
             ///time
             ///
             g.DrawString(Convert.ToString((int)currentSimTime), Small_Font, drawBrush, new PointF(410, 410));
+
             /////////////////////////////////////
             ///VRS WARNINg
-            ///Math.Pow(bvy / (3.6 * 3), 2.0) + Math.Pow((-VerticalVelocity - 5.7) / 3, 2.0) <= 1
-            if (TAS<80)
+            if (ID == "296")//mi24
             {
-                if (Math.Pow(bvy / (3.6 * 3.5), 2.0) + Math.Pow((-VerticalVelocity - 7) / 4, 2.0) <= 1)
+                if (TAS < 50 && VerticalVelocity<=-1)
                 {
-                    g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), drawBrush, 200, 150);
-                    //  g.DrawRectangle(p, 200, 154, 100, 35);
+                    if (Math.Pow(bvy / (3.6 * 4), 2.0) + Math.Pow(bvx / (3.6 * 4), 2.0) + Math.Pow((-VerticalVelocity - 7) / 5, 2.0) <= 1)//高/辛判据预警
+                    {
+                        if (Math.Pow(bvy / (3.6 * 3.5), 2.0) + Math.Pow(bvx / (3.6 * 3.5), 2.0) + Math.Pow((-VerticalVelocity - 7) / 4, 2.0) <= 1)//高/辛判据进入
+                        {
+                            g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), new SolidBrush(Color.OrangeRed), 200, 150);
+                            //  g.DrawRectangle(p, 200, 154, 100, 35);
+                        }
+                        else
+                        {
+                            g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), new SolidBrush(Color.OrangeRed), 200, 150);
+                            //  g.DrawRectangle(p, 200, 154, 100, 35);
+                        }
+                    }
+                    
                 }
             }
-
+            if (ID == "151")//mi8
+            {
+                if (TAS < 50 && VerticalVelocity <= -1)
+                {
+               
+                    if (Math.Pow(bvx / (3.6 * 3.3), 2.0) + Math.Pow(bvy / (3.6 * 3.3), 2.0) + Math.Pow((-VerticalVelocity - 6) / 4, 2.0) <= 1)//高/辛判据预警
+                    {
+                        if (Math.Pow(bvx / (3.6 * 3), 2.0) + Math.Pow(bvy / (3.6 * 3), 2.0) + Math.Pow((-VerticalVelocity - 5.7) / 3, 2.0) <= 1)//高/辛判据进入
+                        {
+                            g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), new SolidBrush(Color.OrangeRed), 200, 150);
+                            //  g.DrawRectangle(p, 200, 154, 100, 35);
+                        }
+                        else
+                        {
+                            g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), drawBrush, 200, 150);
+                            //  g.DrawRectangle(p, 200, 154, 100, 35);
+                        }
+                    }
+                }
+            }
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
