@@ -23,7 +23,7 @@ namespace WindowsFormsApp1
         static double simtime, vvx, vvy, vvz, MAGyaw, altBar, altRad, bvx, bvy, obvx, obvy, oVerticalVelocity, odVerticalVelocity, dVerticalVelocity,
             VerticalVelocity, pitch, bank, yaw, SBP, lRPM, rRPM, oTAS, dTAS, odTAS,camx,camy,camz, visyaw,magdiff;
         static int flag_puase = 0, flag_hide = 0, flag_blind = 0,flag_timeout=0,color_state=1;
-        static string dis_yaw, dis_visyaw;
+        static string dis_yaw, dis_visyaw, ID;
         static int pix_bvx, pix_bvy;
         static int mywidth, myheight;
         static int pic_size = 500;
@@ -412,7 +412,9 @@ namespace WindowsFormsApp1
                         rRPM = double.Parse(STData[12]);
                         camx= double.Parse(STData[13]);
                         camz = double.Parse(STData[15]);
-                     
+                        ID= STData[16];
+
+
 
                     }
                 }
@@ -579,7 +581,7 @@ namespace WindowsFormsApp1
         {
             g.DrawString(Convert.ToString((int)TAS), Mid_Font, drawBrush, 66, 74);//空速显示
             g.DrawLine(p2, new Point(85, 250), new Point(85, 250 - (int)(Math.Atan(dTAS * 30)/Math.PI*300)));
-
+            g.DrawString(ID, Mid_Font, drawBrush, 90, 90);
 
             if (TAS <= 50)
             {
@@ -770,10 +772,14 @@ namespace WindowsFormsApp1
             g.DrawString(Convert.ToString((int)currentSimTime), Small_Font, drawBrush, new PointF(410, 410));
             /////////////////////////////////////
             ///VRS WARNINg
-            if (TAS <= 60 && VerticalVelocity <= -4)
+            ///Math.Pow(bvy / (3.6 * 3), 2.0) + Math.Pow((-VerticalVelocity - 5.7) / 3, 2.0) <= 1
+            if (TAS<80)
             {
-                g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), drawBrush, 200, 150);
-              //  g.DrawRectangle(p, 200, 154, 100, 35);
+                if (Math.Pow(bvy / (3.6 * 3.5), 2.0) + Math.Pow((-VerticalVelocity - 7) / 4, 2.0) <= 1)
+                {
+                    g.DrawString("VRS", new Font("Microsoft YaHei UI", 34), drawBrush, 200, 150);
+                    //  g.DrawRectangle(p, 200, 154, 100, 35);
+                }
             }
 
         }
